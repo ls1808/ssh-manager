@@ -22,7 +22,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out beta
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Read version
         id: version
@@ -46,12 +46,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "v${{ steps.version.outputs.value }}" --repo '${{ github.repository }}' 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            'exists=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          } else {
-            'exists=false' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $tags = @(gh release list --repo '${{ github.repository }}' --limit 100 --json tagName --jq '.[].tagName')
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Could not read the repository release list.'
           }
+          $exists = $tags -contains 'v${{ steps.version.outputs.value }}'
+          "exists=$($exists.ToString().ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Build
         if: steps.release.outputs.exists != 'true'
