@@ -1,5 +1,5 @@
 param(
-    [ValidatePattern('^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$')]
+    [ValidatePattern('^(?:\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|beta-\d+\.\d+(?:\.\d+)?)$')]
     [string]$Version = '1.0.0',
     [ValidateSet('main', 'beta')]
     [string]$Channel = 'beta',
@@ -16,7 +16,12 @@ $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 New-Item -ItemType Directory -Path $objectRoot -Force | Out-Null
 New-Item -ItemType Directory -Path (Split-Path -Parent $outputPath) -Force | Out-Null
 
-$numericVersion = ($Version -split '-')[0] + '.0'
+if ($Version -match '^beta-(\d+)\.(\d+)(?:\.(\d+))?$') {
+    $patchVersion = if ($Matches[3]) { $Matches[3] } else { '0' }
+    $numericVersion = "$($Matches[1]).$($Matches[2]).$patchVersion.0"
+} else {
+    $numericVersion = ($Version -split '-')[0] + '.0'
+}
 $versionSource = Join-Path $objectRoot 'VersionInfo.cs'
 @"
 using System.Reflection;

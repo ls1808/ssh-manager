@@ -16,7 +16,7 @@ the update process are tested across more systems.
 - Host availability indicators
 - Import and export of OpenSSH configuration
 - Searchable Linux command reference
-- In-place updates from GitHub prereleases
+- In-place updates from GitHub beta releases
 
 ## Requirements
 
@@ -27,13 +27,13 @@ No Python installation or separate runtime is required.
 
 ## Download
 
-[Download SSH Manager-beta-1.0](https://github.com/ls1808/ssh-manager/releases/download/v1.1.0-beta.2/SSH-Manager.exe)
+[Download SSH Manager-beta-1.0](https://github.com/ls1808/ssh-manager/releases/download/beta-1.0/SSH-Manager.exe)
 and run it directly. The checksum and release notes are available on the
 [Releases](https://github.com/ls1808/ssh-manager/releases) page.
 
 ## Updates
 
-The app checks GitHub prereleases after startup. If a newer beta is available,
+The app checks GitHub beta releases after startup. If a newer beta is available,
 it asks before downloading anything. Accepted updates are checked against their
 SHA-256 digest, installed in place and restarted automatically.
 
