@@ -2,7 +2,7 @@ param(
     [ValidatePattern('^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$')]
     [string]$Version = '1.0.0',
     [ValidateSet('main', 'beta')]
-    [string]$Channel = 'main',
+    [string]$Channel = 'beta',
     [string]$Output = 'release\SSH-Manager.exe'
 )
 
@@ -45,4 +45,3 @@ $arguments += $versionSource
 if ($LASTEXITCODE -ne 0) { throw "C# compilation failed with exit code $LASTEXITCODE." }
 
 Write-Host "Built $Channel version $Version -> $outputPath"
-

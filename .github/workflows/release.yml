@@ -1,10 +1,8 @@
-name: Publish SSH Manager
+name: Publish beta release
 
 on:
   push:
-    branches:
-      - main
-      - beta
+    branches: [beta]
     paths:
       - version.json
       - src/**
@@ -16,75 +14,63 @@ permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: beta-release
   cancel-in-progress: false
 
 jobs:
   release:
     runs-on: windows-latest
     steps:
-      - name: Check out release branch
+      - name: Check out beta
         uses: actions/checkout@v4
 
-      - name: Read and validate channel version
-        id: metadata
+      - name: Read version
+        id: version
         shell: pwsh
         run: |
-          $branch = '${{ github.ref_name }}'
-          if ($branch -notin @('main', 'beta')) { throw 'Releases may only be published from main or beta.' }
           $metadata = Get-Content -LiteralPath 'version.json' -Raw | ConvertFrom-Json
-          $version = [string]$metadata.version
-          if ($version -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$') { throw 'version.json must contain a semantic version.' }
-          if ($branch -eq 'main' -and $version.Contains('-')) { throw 'The main branch only publishes stable versions.' }
-          if ($branch -eq 'beta' -and -not $version.Contains('-')) { throw 'The beta branch version must include a prerelease suffix.' }
-          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $value = [string]$metadata.version
+          if ($value -notmatch '^\d+\.\d+\.\d+-[0-9A-Za-z.-]+$') {
+            throw 'Beta versions must use a prerelease suffix, for example 1.2.0-beta.1.'
+          }
+          "value=$value" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
-      - name: Check whether this version is already published
-        id: existing
+      - name: Check for an existing release
+        id: release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "v${{ steps.metadata.outputs.version }}" --repo '${{ github.repository }}' 2>$null
-          if ($LASTEXITCODE -eq 0) { 'published=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append }
-          else { 'published=false' | Out-File -FilePath $env:GITHUB_OUTPUT -Append }
+          gh release view "v${{ steps.version.outputs.value }}" --repo '${{ github.repository }}' 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            'exists=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            'exists=false' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
 
-      - name: Build standalone executable
-        if: steps.existing.outputs.published != 'true'
+      - name: Build
+        if: steps.release.outputs.exists != 'true'
         shell: pwsh
-        run: .\scripts\build.ps1 -Version '${{ steps.metadata.outputs.version }}' -Channel '${{ github.ref_name }}'
+        run: .\scripts\build.ps1 -Version '${{ steps.version.outputs.value }}' -Channel beta
 
-      - name: Create SHA-256 checksum
-        if: steps.existing.outputs.published != 'true'
+      - name: Create checksum
+        if: steps.release.outputs.exists != 'true'
         shell: pwsh
         run: |
           $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath 'release\SSH-Manager.exe').Hash.ToLowerInvariant()
           "$hash  SSH-Manager.exe" | Set-Content -LiteralPath 'release\SSH-Manager.exe.sha256' -Encoding ascii
 
-      - name: Publish stable release
-        if: github.ref_name == 'main' && steps.existing.outputs.published != 'true'
+      - name: Publish prerelease
+        if: steps.release.outputs.exists != 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "v${{ steps.metadata.outputs.version }}" `
-            'release\SSH-Manager.exe#SSH Manager' `
-            'release\SSH-Manager.exe.sha256#SHA-256 checksum' `
-            --target '${{ github.sha }}' `
-            --title "SSH Manager ${{ steps.metadata.outputs.version }}" `
-            --generate-notes
-
-      - name: Publish beta prerelease
-        if: github.ref_name == 'beta' && steps.existing.outputs.published != 'true'
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "v${{ steps.metadata.outputs.version }}" `
+          gh release create "v${{ steps.version.outputs.value }}" `
             'release\SSH-Manager.exe#SSH Manager Beta' `
             'release\SSH-Manager.exe.sha256#SHA-256 checksum' `
             --target '${{ github.sha }}' `
-            --title "SSH Manager ${{ steps.metadata.outputs.version }}" `
+            --title "SSH Manager ${{ steps.version.outputs.value }}" `
             --generate-notes `
             --prerelease
 

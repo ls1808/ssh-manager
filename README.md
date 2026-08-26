@@ -1,28 +1,53 @@
 # SSH Manager
 
-A standalone Windows SSH connection manager with saved hosts, an embedded
-multi-tab terminal, connection status checks, and a categorized Linux command
-library. The application is built as one self-contained executable and requires
-no Python runtime or installer.
+[![Beta release](https://github.com/ls1808/ssh-manager/actions/workflows/release.yml/badge.svg?branch=beta)](https://github.com/ls1808/ssh-manager/actions/workflows/release.yml)
 
-## Build
+SSH Manager is a Windows desktop app for organising SSH connections and working
+with several remote terminals in one window.
+
+The project is currently in beta. Expect changes while terminal behaviour and
+the update process are tested across more systems.
+
+## Features
+
+- Saved SSH and SFTP connection profiles
+- Embedded terminal sessions with tabs
+- Password, private-key and SSH-agent authentication
+- Host availability indicators
+- Import and export of OpenSSH configuration
+- Searchable Linux command reference
+- In-place updates from GitHub prereleases
+
+## Requirements
+
+- Windows 10 version 1809 or newer
+- Windows OpenSSH client
+
+No Python installation or separate runtime is required.
+
+## Download
+
+Beta builds are published on the [Releases](https://github.com/ls1808/ssh-manager/releases)
+page. Download `SSH-Manager.exe` and run it directly.
+
+## Build from source
 
 ```powershell
-.\scripts\build.ps1 -Version 1.0.0 -Channel main
+.\scripts\build.ps1 -Version 1.1.0-beta.1 -Channel beta
 ```
 
-Use `-Channel beta` and a prerelease version such as `1.1.0-beta.1` for beta
-builds. The output is `release\SSH-Manager.exe`.
+The compiled executable is written to `release\SSH-Manager.exe`.
 
-## Automatic updates
+## Updates
 
-- Builds from `main` follow stable GitHub Releases.
-- Builds from `beta` follow GitHub prereleases.
-- The app checks for an update after startup.
-- The user is asked before downloading.
-- Downloads are verified with SHA-256, installed in place, and the app restarts
-  automatically without an installer wizard.
+The app checks GitHub prereleases after startup. If a newer beta is available,
+it asks before downloading anything. Accepted updates are checked against their
+SHA-256 digest, installed in place and restarted automatically.
 
-See [RELEASING.md](RELEASING.md) for the release process.
+To publish a beta, update `version.json` and push the change to `beta`. The
+release workflow builds and publishes the executable automatically.
 
-Connection data is stored in the current Windows user's application-data folder.
+## Local data
+
+Connection profiles are stored under `%APPDATA%\SSH Manager`. Saved passwords
+are protected with Windows DPAPI for the current Windows account.

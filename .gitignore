@@ -3,5 +3,3 @@ obj/
 release/
 *.previous
 *.user
-.github_known_hosts
-.repo/
