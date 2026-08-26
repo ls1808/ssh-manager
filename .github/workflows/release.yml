@@ -53,14 +53,15 @@ jobs:
       - name: Build
         if: steps.release.outputs.exists != 'true'
         shell: pwsh
-        run: .\scripts\build.ps1 -Version '${{ steps.version.outputs.value }}' -Channel beta
+        run: .\scripts\build.ps1 -Version '${{ steps.version.outputs.value }}' -Channel beta -Output 'release\SSH Manager-${{ steps.version.outputs.value }}.exe'
 
       - name: Create checksum
         if: steps.release.outputs.exists != 'true'
         shell: pwsh
         run: |
-          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath 'release\SSH-Manager.exe').Hash.ToLowerInvariant()
-          "$hash  SSH-Manager.exe" | Set-Content -LiteralPath 'release\SSH-Manager.exe.sha256' -Encoding ascii
+          $asset = 'SSH Manager-${{ steps.version.outputs.value }}.exe'
+          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath "release\$asset").Hash.ToLowerInvariant()
+          "$hash  $asset" | Set-Content -LiteralPath "release\$asset.sha256" -Encoding ascii
 
       - name: Publish beta release
         if: steps.release.outputs.exists != 'true'
@@ -69,8 +70,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create '${{ steps.version.outputs.value }}' `
-            'release\SSH-Manager.exe#SSH Manager-${{ steps.version.outputs.value }}' `
-            'release\SSH-Manager.exe.sha256#SHA-256 checksum' `
+            'release\SSH Manager-${{ steps.version.outputs.value }}.exe#SSH Manager-${{ steps.version.outputs.value }}' `
+            'release\SSH Manager-${{ steps.version.outputs.value }}.exe.sha256#SHA-256 checksum' `
             --target '${{ github.sha }}' `
             --title '${{ steps.version.outputs.title }}' `
             --generate-notes `
