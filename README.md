@@ -30,14 +30,6 @@ No Python installation or separate runtime is required.
 Beta builds are published on the [Releases](https://github.com/ls1808/ssh-manager/releases)
 page. Download `SSH-Manager.exe` and run it directly.
 
-## Build from source
-
-```powershell
-.\scripts\build.ps1 -Version 1.1.0-beta.1 -Channel beta
-```
-
-The compiled executable is written to `release\SSH-Manager.exe`.
-
 ## Updates
 
 The app checks GitHub prereleases after startup. If a newer beta is available,

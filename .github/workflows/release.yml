@@ -33,7 +33,12 @@ jobs:
           if ($value -notmatch '^\d+\.\d+\.\d+-[0-9A-Za-z.-]+$') {
             throw 'Beta versions must use a prerelease suffix, for example 1.2.0-beta.1.'
           }
+          $title = [string]$metadata.releaseTitle
+          if ([string]::IsNullOrWhiteSpace($title)) {
+            $title = "SSH Manager $value"
+          }
           "value=$value" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "title=$title" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Check for an existing release
         id: release
@@ -67,10 +72,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "v${{ steps.version.outputs.value }}" `
-            'release\SSH-Manager.exe#SSH Manager Beta' `
+            'release\SSH-Manager.exe#SSH Manager-beta-1.0' `
             'release\SSH-Manager.exe.sha256#SHA-256 checksum' `
             --target '${{ github.sha }}' `
-            --title "SSH Manager ${{ steps.version.outputs.value }}" `
+            --title '${{ steps.version.outputs.title }}' `
             --generate-notes `
             --prerelease
-
