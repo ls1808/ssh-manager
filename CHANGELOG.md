@@ -1,5 +1,11 @@
 # Changelog
 
+## beta-1.3
+
+- Renamed the installed executable to `SSH Manager.exe` after an automatic update.
+- Removed the obsolete version-named executable after the updated app restarts.
+- Published future release downloads with a stable filename.
+
 ## beta-1.2
 
 - Replaced the Windows update prompt with a native SSH Manager modal.

@@ -52,12 +52,12 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: .\scripts\build.ps1 -Version '${{ steps.version.outputs.value }}' -Channel beta -Output 'release\SSH-Manager-${{ steps.version.outputs.value }}.exe'
+        run: .\scripts\build.ps1 -Version '${{ steps.version.outputs.value }}' -Channel beta -Output 'release\SSH-Manager.exe'
 
       - name: Create checksum
         shell: pwsh
         run: |
-          $asset = 'SSH-Manager-${{ steps.version.outputs.value }}.exe'
+          $asset = 'SSH-Manager.exe'
           $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath "release\$asset").Hash.ToLowerInvariant()
           "$hash  $asset" | Set-Content -LiteralPath "release\$asset.sha256" -Encoding ascii
 
@@ -71,9 +71,9 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'Could not replace the existing beta release.' }
           }
           gh release create '${{ steps.version.outputs.value }}' `
-            'release\SSH-Manager-${{ steps.version.outputs.value }}.exe#SSH Manager-${{ steps.version.outputs.value }}' `
-            'release\SSH-Manager-${{ steps.version.outputs.value }}.exe.sha256#SHA-256 checksum' `
+            'release\SSH-Manager.exe#SSH Manager' `
+            'release\SSH-Manager.exe.sha256#SHA-256 checksum' `
             --target '${{ github.sha }}' `
             --title '${{ steps.version.outputs.title }}' `
-            --notes 'First public beta of SSH Manager. Includes embedded tabbed terminals, saved SSH and SFTP profiles, the Linux command reference, and automatic SHA-256 verified updates.' `
+            --notes 'Public beta of SSH Manager. Includes embedded tabbed terminals, saved SSH and SFTP profiles, the Linux command reference, and automatic SHA-256 verified updates.' `
             --latest
