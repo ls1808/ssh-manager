@@ -27,7 +27,7 @@ No Python installation or separate runtime is required.
 
 ## Download
 
-[Download SSH Manager-beta-1.0](https://github.com/ls1808/ssh-manager/releases/download/beta-1.0/SSH-Manager-beta-1.0.exe)
+[Download SSH Manager-beta-1.1](https://github.com/ls1808/ssh-manager/releases/download/beta-1.1/SSH-Manager-beta-1.1.exe)
 and run it directly. The checksum and release notes are available on the
 [Releases](https://github.com/ls1808/ssh-manager/releases) page.
 

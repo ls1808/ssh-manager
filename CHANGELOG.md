@@ -1,5 +1,11 @@
 # Changelog
 
+## beta-1.1
+
+- Published a public OTA test release for users running `beta-1.0`.
+- Retained automatic startup checks and the manual update status control.
+- Revalidated executable replacement and SHA-256 release verification.
+
 ## beta-1.0
 
 - Added embedded, tabbed SSH terminal sessions.
