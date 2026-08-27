@@ -1,5 +1,10 @@
 # Changelog
 
+## beta-1.2
+
+- Replaced the Windows update prompt with a native SSH Manager modal.
+- Matched the app's dark surfaces, rounded corners, accent border and button styling.
+
 ## beta-1.1
 
 - Published a public OTA test release for users running `beta-1.0`.
