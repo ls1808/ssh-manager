@@ -51,12 +51,10 @@ jobs:
           "exists=$($exists.ToString().ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Build
-        if: steps.release.outputs.exists != 'true'
         shell: pwsh
         run: .\scripts\build.ps1 -Version '${{ steps.version.outputs.value }}' -Channel beta -Output 'release\SSH Manager-${{ steps.version.outputs.value }}.exe'
 
       - name: Create checksum
-        if: steps.release.outputs.exists != 'true'
         shell: pwsh
         run: |
           $asset = 'SSH Manager-${{ steps.version.outputs.value }}.exe'
@@ -64,15 +62,18 @@ jobs:
           "$hash  $asset" | Set-Content -LiteralPath "release\$asset.sha256" -Encoding ascii
 
       - name: Publish beta release
-        if: steps.release.outputs.exists != 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if ('${{ steps.release.outputs.exists }}' -eq 'true') {
+            gh release delete '${{ steps.version.outputs.value }}' --cleanup-tag --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not replace the existing beta release.' }
+          }
           gh release create '${{ steps.version.outputs.value }}' `
             'release\SSH Manager-${{ steps.version.outputs.value }}.exe#SSH Manager-${{ steps.version.outputs.value }}' `
             'release\SSH Manager-${{ steps.version.outputs.value }}.exe.sha256#SHA-256 checksum' `
             --target '${{ github.sha }}' `
             --title '${{ steps.version.outputs.title }}' `
-            --generate-notes `
+            --notes 'First public beta of SSH Manager. Includes embedded tabbed terminals, saved SSH and SFTP profiles, the Linux command reference, and automatic SHA-256 verified updates.' `
             --latest
